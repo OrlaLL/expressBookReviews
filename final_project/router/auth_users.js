@@ -39,10 +39,54 @@ regd_users.post("/login", (req, res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
-});
+  const isbn = req.params.isbn;
+  const { review } = req.body;
+  const username = req.session.authorization.username;
+  if(!isbn || !books[isbn]){
+    return res.status(404).json({message: "Book not found"});
+  }
+  if(!review){
+    return res.status(400).json({message: "Review is required"});
+  }
+  // Seleciona o livro com base no ISBN fornecido
+  let book = books[isbn];
+  if(!book){
+    return res.status(404).json({message: "Book not found"});
+  }
+  // Verifica se o usuário já postou uma resenha para o livro
+  if(book.reviews[username]){
+    // Se o usuário já postou uma resenha, atualiza a resenha existente
+    book.reviews[username] = review;
+  } else {
+    // Se o usuário não postou uma resenha, adiciona uma nova resenha
+    book.reviews[username] = review;
+  }
+  // Retorna uma resposta de sucesso com o status 200 e uma mensagem de resenha adicionada/atualizada com sucesso
+  return res.status(200).json({ message: "Review added/updated successfully" });
 
+});
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const username = req.session.authorization.username;
+  if(!isbn){
+    return res.status(404).json({message: "Book not found"});
+  }
+  let book = books[isbn];
+  if(!book){
+    return res.status(404).json({message: "Book not found"});
+  }
+  // Seleciona todas as resenhas que o usuário postou para o livro com base no ISBN fornecido
+  if(book.reviews[username]){
+    // Se o usuário postou uma resenha, exclui a resenha existente
+    delete book.reviews[username];
+    return res.status(200).json({ message: "Review deleted successfully" });
+  } else {
+    // Se o usuário não postou uma resenha, retorna uma resposta de erro com o status 404 e uma mensagem de resenha não encontrada
+    return res.status(404).json({ message: "Review not found" });
+  }
+
+})
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
