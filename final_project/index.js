@@ -2,35 +2,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const session = require('express-session')
 const customer_routes = require('./router/auth_users.js').authenticated;
+const authenticatedUser = require('./router/auth_users.js').authenticatedUser;
 const genl_routes = require('./router/general.js').general;
-
-let users = []
-//  Verifica se um usuário existe em users array
-const doesExist = (username) => {
-    // Procura no array de usuários um usuário com o mesmo nome de usuário fornecido
-    let userswithsamename = users.filter((user) => {
-        return user.username === username;
-    });
-    // Retorna true se houver um usuário com o mesmo nome de usuário, caso contrário, retorna false
-    if (userswithsamename.length > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-// Verifica se o usuário e a senha correspondem a um usuário existente
-const authenticatedUser = (username, password) => {
-    // Procura no array de usuários um usuário com o mesmo nome de usuário e senha fornecidos
-    let validusers = users.filter((user) => {
-        return (user.username === username && user.password === password);
-    });
-    // Retorna true se houver um usuário válido, caso contrário, retorna false
-    if (validusers.length > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
 
 const app = express();
 
